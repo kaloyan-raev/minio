@@ -52,6 +52,7 @@ type BucketOptions struct {
 	Location          string
 	LockEnabled       bool
 	VersioningEnabled bool
+	AccessKey         string
 }
 
 // LockType represents required locking for ObjectLayer operations
