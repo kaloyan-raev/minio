@@ -246,7 +246,8 @@ func (fs *FSObjects) CrawlAndGetDataUsage(ctx context.Context, bf *bloomFilter, 
 		return err
 	}
 	totalCache.Info.Name = dataUsageRoot
-	buckets, err := fs.ListBuckets(ctx)
+	// TODO: add options
+	buckets, err := fs.ListBuckets(ctx, BucketOptions{})
 	if err != nil {
 		return err
 	}
@@ -491,7 +492,7 @@ func (fs *FSObjects) GetBucketInfo(ctx context.Context, bucket string) (bi Bucke
 }
 
 // ListBuckets - list all s3 compatible buckets (directories) at fsPath.
-func (fs *FSObjects) ListBuckets(ctx context.Context) ([]BucketInfo, error) {
+func (fs *FSObjects) ListBuckets(ctx context.Context, opts BucketOptions) ([]BucketInfo, error) {
 	if err := checkPathLength(fs.fsPath); err != nil {
 		logger.LogIf(ctx, err)
 		return nil, err

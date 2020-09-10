@@ -93,7 +93,8 @@ func getLocalBackgroundHealStatus() (madmin.BgHealState, bool) {
 
 // healErasureSet lists and heals all objects in a specific erasure set
 func healErasureSet(ctx context.Context, setIndex int, xlObj *erasureObjects, setDriveCount int) error {
-	buckets, err := xlObj.ListBuckets(ctx)
+	// TODO: add options
+	buckets, err := xlObj.ListBuckets(ctx, BucketOptions{})
 	if err != nil {
 		return err
 	}

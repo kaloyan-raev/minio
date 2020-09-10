@@ -296,7 +296,8 @@ func (z *erasureZones) CrawlAndGetDataUsage(ctx context.Context, bf *bloomFilter
 	for _, z := range z.zones {
 		for _, erObj := range z.sets {
 			// Add new buckets.
-			buckets, err := erObj.ListBuckets(ctx)
+			// TODO: add options
+			buckets, err := erObj.ListBuckets(ctx, BucketOptions{})
 			if err != nil {
 				return err
 			}
@@ -1674,12 +1675,12 @@ func undoDeleteBucketZones(ctx context.Context, bucket string, zones []*erasureS
 // List all buckets from one of the zones, we are not doing merge
 // sort here just for simplification. As per design it is assumed
 // that all buckets are present on all zones.
-func (z *erasureZones) ListBuckets(ctx context.Context) (buckets []BucketInfo, err error) {
+func (z *erasureZones) ListBuckets(ctx context.Context, opts BucketOptions) (buckets []BucketInfo, err error) {
 	if z.SingleZone() {
-		buckets, err = z.zones[0].ListBuckets(ctx)
+		buckets, err = z.zones[0].ListBuckets(ctx, opts)
 	} else {
 		for _, zone := range z.zones {
-			buckets, err = zone.ListBuckets(ctx)
+			buckets, err = zone.ListBuckets(ctx, opts)
 			if err != nil {
 				logger.LogIf(ctx, err)
 				continue

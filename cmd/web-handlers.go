@@ -175,6 +175,7 @@ func (web *webAPIHandlers) MakeBucket(r *http.Request, args *MakeBucketArgs, rep
 	opts := BucketOptions{
 		Location:    globalServerRegion,
 		LockEnabled: false,
+		AccessKey:   claims.AccessKey,
 	}
 
 	if globalDNSConfig != nil {
@@ -354,7 +355,8 @@ func (web *webAPIHandlers) ListBuckets(r *http.Request, args *WebGenericArgs, re
 			}
 		}
 	} else {
-		buckets, err := listBuckets(ctx)
+		opts := BucketOptions{AccessKey: claims.AccessKey}
+		buckets, err := listBuckets(ctx, opts)
 		if err != nil {
 			return toJSONError(ctx, err)
 		}

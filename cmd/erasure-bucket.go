@@ -159,7 +159,7 @@ func (er erasureObjects) listBuckets(ctx context.Context) (bucketsInfo []BucketI
 }
 
 // ListBuckets - lists all the buckets, sorted by its name.
-func (er erasureObjects) ListBuckets(ctx context.Context) ([]BucketInfo, error) {
+func (er erasureObjects) ListBuckets(ctx context.Context, opts BucketOptions) ([]BucketInfo, error) {
 	bucketInfos, err := er.listBuckets(ctx)
 	if err != nil {
 		return nil, toObjectErr(err)

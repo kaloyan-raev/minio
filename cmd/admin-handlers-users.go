@@ -627,7 +627,8 @@ func (a adminAPIHandlers) AccountUsageInfoHandler(w http.ResponseWriter, r *http
 		return rd, wr
 	}
 
-	buckets, err := objectAPI.ListBuckets(ctx)
+	opts := BucketOptions{AccessKey: cred.AccessKey}
+	buckets, err := objectAPI.ListBuckets(ctx, opts)
 	if err != nil {
 		writeErrorResponseJSON(ctx, w, toAdminAPIErr(ctx, err), r.URL)
 		return

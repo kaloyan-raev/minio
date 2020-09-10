@@ -291,7 +291,8 @@ func (api objectAPIHandlers) ListBucketsHandler(w http.ResponseWriter, r *http.R
 	} else {
 		// Invoke the list buckets.
 		var err error
-		bucketsInfo, err = listBuckets(ctx)
+		opts := BucketOptions{AccessKey: accessKey}
+		bucketsInfo, err = listBuckets(ctx, opts)
 		if err != nil {
 			writeErrorResponse(ctx, w, toAPIError(ctx, err), r.URL, guessIsBrowserReq(r))
 			return

@@ -331,7 +331,7 @@ func initAllSubsystems(ctx context.Context, newObject ObjectLayer) (err error) {
 			}
 		}
 	} else {
-		buckets, err = newObject.ListBuckets(ctx)
+		buckets, err = newObject.ListBuckets(ctx, BucketOptions{})
 		if err != nil {
 			return fmt.Errorf("Unable to list buckets: %w", err)
 		}

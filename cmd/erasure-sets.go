@@ -670,9 +670,9 @@ func undoDeleteBucketSets(ctx context.Context, bucket string, sets []*erasureObj
 // List all buckets from one of the set, we are not doing merge
 // sort here just for simplification. As per design it is assumed
 // that all buckets are present on all sets.
-func (s *erasureSets) ListBuckets(ctx context.Context) (buckets []BucketInfo, err error) {
+func (s *erasureSets) ListBuckets(ctx context.Context, opts BucketOptions) (buckets []BucketInfo, err error) {
 	// Always lists from the same set signified by the empty string.
-	return s.getHashedSet("").ListBuckets(ctx)
+	return s.getHashedSet("").ListBuckets(ctx, opts)
 }
 
 // --- Object Operations ---
