@@ -1622,9 +1622,9 @@ func (z *erasureZones) IsTaggingSupported() bool {
 // DeleteBucket - deletes a bucket on all zones simultaneously,
 // even if one of the zones fail to delete buckets, we proceed to
 // undo a successful operation.
-func (z *erasureZones) DeleteBucket(ctx context.Context, bucket string, forceDelete bool) error {
+func (z *erasureZones) DeleteBucket(ctx context.Context, bucket string, forceDelete bool, opts BucketOptions) error {
 	if z.SingleZone() {
-		return z.zones[0].DeleteBucket(ctx, bucket, forceDelete)
+		return z.zones[0].DeleteBucket(ctx, bucket, forceDelete, opts)
 	}
 	g := errgroup.WithNErrs(len(z.zones))
 
@@ -1632,7 +1632,7 @@ func (z *erasureZones) DeleteBucket(ctx context.Context, bucket string, forceDel
 	for index := range z.zones {
 		index := index
 		g.Go(func() error {
-			return z.zones[index].DeleteBucket(ctx, bucket, forceDelete)
+			return z.zones[index].DeleteBucket(ctx, bucket, forceDelete, opts)
 		}, index)
 	}
 

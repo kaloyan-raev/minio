@@ -621,14 +621,14 @@ func (s *erasureSets) IsTaggingSupported() bool {
 // DeleteBucket - deletes a bucket on all sets simultaneously,
 // even if one of the sets fail to delete buckets, we proceed to
 // undo a successful operation.
-func (s *erasureSets) DeleteBucket(ctx context.Context, bucket string, forceDelete bool) error {
+func (s *erasureSets) DeleteBucket(ctx context.Context, bucket string, forceDelete bool, opts BucketOptions) error {
 	g := errgroup.WithNErrs(len(s.sets))
 
 	// Delete buckets in parallel across all sets.
 	for index := range s.sets {
 		index := index
 		g.Go(func() error {
-			return s.sets[index].DeleteBucket(ctx, bucket, forceDelete)
+			return s.sets[index].DeleteBucket(ctx, bucket, forceDelete, opts)
 		}, index)
 	}
 

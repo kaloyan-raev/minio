@@ -355,7 +355,7 @@ func (l *s3Objects) ListBuckets(ctx context.Context) ([]minio.BucketInfo, error)
 }
 
 // DeleteBucket deletes a bucket on S3
-func (l *s3Objects) DeleteBucket(ctx context.Context, bucket string, forceDelete bool) error {
+func (l *s3Objects) DeleteBucket(ctx context.Context, bucket string, forceDelete bool, opts minio.BucketOptions) error {
 	err := l.Client.RemoveBucket(ctx, bucket)
 	if err != nil {
 		return minio.ErrorRespToObjectError(err, bucket)

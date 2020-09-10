@@ -573,7 +573,8 @@ func (api objectAPIHandlers) PutBucketHandler(w http.ResponseWriter, r *http.Req
 				}
 
 				if err = globalDNSConfig.Put(bucket); err != nil {
-					objectAPI.DeleteBucket(ctx, bucket, false)
+					opts := BucketOptions{AccessKey: accessKey}
+					objectAPI.DeleteBucket(ctx, bucket, false, opts)
 					writeErrorResponse(ctx, w, toAPIError(ctx, err), r.URL, guessIsBrowserReq(r))
 					return
 				}
@@ -954,7 +955,8 @@ func (api objectAPIHandlers) DeleteBucketHandler(w http.ResponseWriter, r *http.
 	}
 
 	// Verify if the caller has sufficient permissions.
-	if s3Error := checkRequestAuthType(ctx, r, policy.DeleteBucketAction, bucket, ""); s3Error != ErrNone {
+	accessKey, _, s3Error := checkRequestAuthTypeToAccessKey(ctx, r, policy.DeleteBucketAction, bucket, "")
+	if s3Error != ErrNone {
 		writeErrorResponse(ctx, w, errorCodes.ToAPIErr(s3Error), r.URL, guessIsBrowserReq(r))
 		return
 	}
@@ -988,7 +990,8 @@ func (api objectAPIHandlers) DeleteBucketHandler(w http.ResponseWriter, r *http.
 	deleteBucket := objectAPI.DeleteBucket
 
 	// Attempt to delete bucket.
-	if err := deleteBucket(ctx, bucket, forceDelete); err != nil {
+	opts := BucketOptions{AccessKey: accessKey}
+	if err := deleteBucket(ctx, bucket, forceDelete, opts); err != nil {
 		if _, ok := err.(BucketNotEmpty); ok && (globalBucketVersioningSys.Enabled(bucket) || globalBucketVersioningSys.Suspended(bucket)) {
 			apiErr := toAPIError(ctx, err)
 			apiErr.Description = "The bucket you tried to delete is not empty. You must delete all versions in the bucket."

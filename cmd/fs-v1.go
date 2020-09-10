@@ -546,7 +546,7 @@ func (fs *FSObjects) ListBuckets(ctx context.Context, opts BucketOptions) ([]Buc
 
 // DeleteBucket - delete a bucket and all the metadata associated
 // with the bucket including pending multipart, object metadata.
-func (fs *FSObjects) DeleteBucket(ctx context.Context, bucket string, forceDelete bool) error {
+func (fs *FSObjects) DeleteBucket(ctx context.Context, bucket string, forceDelete bool, opts BucketOptions) error {
 	atomic.AddInt64(&fs.activeIOCount, 1)
 	defer func() {
 		atomic.AddInt64(&fs.activeIOCount, -1)
