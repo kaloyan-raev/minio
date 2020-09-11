@@ -530,7 +530,8 @@ func (api objectAPIHandlers) HeadObjectHandler(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	if s3Error := checkRequestAuthType(ctx, r, policy.GetObjectAction, bucket, object); s3Error != ErrNone {
+	accessKey, _, s3Error := checkRequestAuthTypeToAccessKey(ctx, r, policy.GetObjectAction, bucket, object)
+	if s3Error != ErrNone {
 		if getRequestAuthType(r) == authTypeAnonymous {
 			// As per "Permission" section in
 			// https://docs.aws.amazon.com/AmazonS3/latest/API/RESTObjectHEAD.html
@@ -561,6 +562,7 @@ func (api objectAPIHandlers) HeadObjectHandler(w http.ResponseWriter, r *http.Re
 		return
 	}
 
+	opts.AccessKey = accessKey
 	objInfo, err := getObjectInfo(ctx, bucket, object, opts)
 	if err != nil {
 		if globalBucketVersioningSys.Enabled(bucket) {
