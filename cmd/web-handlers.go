@@ -1307,7 +1307,7 @@ func (web *webAPIHandlers) Download(w http.ResponseWriter, r *http.Request) {
 		getObjectNInfo = web.CacheAPI().GetObjectNInfo
 	}
 
-	var opts ObjectOptions
+	opts := ObjectOptions{AccessKey: claims.AccessKey}
 	gr, err := getObjectNInfo(ctx, bucket, object, nil, r.Header, readLock, opts)
 	if err != nil {
 		writeWebErrorResponse(w, err)
