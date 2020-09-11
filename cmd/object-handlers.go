@@ -1651,7 +1651,8 @@ func (api objectAPIHandlers) NewMultipartUploadHandler(w http.ResponseWriter, r 
 		return
 	}
 
-	if s3Error := checkRequestAuthType(ctx, r, policy.PutObjectAction, bucket, object); s3Error != ErrNone {
+	accessKey, _, s3Error := checkRequestAuthTypeToAccessKey(ctx, r, policy.PutObjectAction, bucket, object)
+	if s3Error != ErrNone {
 		writeErrorResponse(ctx, w, errorCodes.ToAPIErr(s3Error), r.URL, guessIsBrowserReq(r))
 		return
 	}
@@ -1734,6 +1735,7 @@ func (api objectAPIHandlers) NewMultipartUploadHandler(w http.ResponseWriter, r 
 		writeErrorResponse(ctx, w, toAPIError(ctx, err), r.URL, guessIsBrowserReq(r))
 		return
 	}
+	opts.AccessKey = accessKey
 	newMultipartUpload := objectAPI.NewMultipartUpload
 
 	uploadID, err := newMultipartUpload(ctx, bucket, object, opts)
