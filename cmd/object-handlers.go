@@ -899,6 +899,8 @@ func (api objectAPIHandlers) CopyObjectHandler(w http.ResponseWriter, r *http.Re
 		return
 	}
 	srcOpts.VersionID = vid
+	srcOpts.AccessKey = accessKey
+	dstOpts.AccessKey = accessKey
 
 	// convert copy src encryption options for GET calls
 	var getOpts = ObjectOptions{VersionID: srcOpts.VersionID, Versioned: srcOpts.Versioned}
@@ -906,6 +908,7 @@ func (api objectAPIHandlers) CopyObjectHandler(w http.ResponseWriter, r *http.Re
 	if getSSE != srcOpts.ServerSideEncryption {
 		getOpts.ServerSideEncryption = getSSE
 	}
+	getOpts.AccessKey = accessKey
 
 	dstOpts, err = copyDstOpts(ctx, r, dstBucket, dstObject, nil)
 	if err != nil {
