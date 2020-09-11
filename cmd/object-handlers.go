@@ -2708,7 +2708,8 @@ func (api objectAPIHandlers) DeleteObjectHandler(w http.ResponseWriter, r *http.
 		return
 	}
 
-	if s3Error := checkRequestAuthType(ctx, r, policy.DeleteObjectAction, bucket, object); s3Error != ErrNone {
+	accessKey, _, s3Error := checkRequestAuthTypeToAccessKey(ctx, r, policy.DeleteObjectAction, bucket, object)
+	if s3Error != ErrNone {
 		writeErrorResponse(ctx, w, errorCodes.ToAPIErr(s3Error), r.URL, guessIsBrowserReq(r))
 		return
 	}
@@ -2731,6 +2732,7 @@ func (api objectAPIHandlers) DeleteObjectHandler(w http.ResponseWriter, r *http.
 		writeErrorResponse(ctx, w, toAPIError(ctx, err), r.URL, guessIsBrowserReq(r))
 		return
 	}
+	opts.AccessKey = accessKey
 
 	apiErr := ErrNone
 	if rcfg, _ := globalBucketObjectLockSys.Get(bucket); rcfg.LockEnabled {

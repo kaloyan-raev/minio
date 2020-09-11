@@ -686,6 +686,7 @@ func (web *webAPIHandlers) RemoveObject(r *http.Request, args *RemoveObjectArgs,
 	opts := ObjectOptions{
 		Versioned:        globalBucketVersioningSys.Enabled(args.BucketName),
 		VersionSuspended: globalBucketVersioningSys.Suspended(args.BucketName),
+		AccessKey:        claims.AccessKey,
 	}
 	var err error
 next:
