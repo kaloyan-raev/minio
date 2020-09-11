@@ -585,8 +585,8 @@ func (s *erasureSets) getHashedSet(input string) (set *erasureObjects) {
 }
 
 // GetBucketInfo - returns bucket info from one of the erasure coded set.
-func (s *erasureSets) GetBucketInfo(ctx context.Context, bucket string) (bucketInfo BucketInfo, err error) {
-	return s.getHashedSet("").GetBucketInfo(ctx, bucket)
+func (s *erasureSets) GetBucketInfo(ctx context.Context, bucket string, opts BucketOptions) (bucketInfo BucketInfo, err error) {
+	return s.getHashedSet("").GetBucketInfo(ctx, bucket, opts)
 }
 
 // ListObjectsV2 lists all objects in bucket filtered by prefix

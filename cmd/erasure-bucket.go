@@ -114,7 +114,7 @@ func (er erasureObjects) getBucketInfo(ctx context.Context, bucketName string) (
 }
 
 // GetBucketInfo - returns BucketInfo for a bucket.
-func (er erasureObjects) GetBucketInfo(ctx context.Context, bucket string) (bi BucketInfo, e error) {
+func (er erasureObjects) GetBucketInfo(ctx context.Context, bucket string, opts BucketOptions) (bi BucketInfo, e error) {
 	bucketInfo, err := er.getBucketInfo(ctx, bucket)
 	if err != nil {
 		return bi, toObjectErr(err, bucket)

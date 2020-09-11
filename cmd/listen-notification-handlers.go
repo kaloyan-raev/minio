@@ -52,13 +52,17 @@ func (api objectAPIHandlers) ListenNotificationHandler(w http.ResponseWriter, r 
 	vars := mux.Vars(r)
 	bucketName := vars["bucket"]
 
+	var accessKey string
+	var s3Error APIErrorCode
 	if bucketName == "" {
-		if s3Error := checkRequestAuthType(ctx, r, policy.ListenNotificationAction, bucketName, ""); s3Error != ErrNone {
+		accessKey, _, s3Error = checkRequestAuthTypeToAccessKey(ctx, r, policy.ListenNotificationAction, bucketName, "")
+		if s3Error != ErrNone {
 			writeErrorResponse(ctx, w, errorCodes.ToAPIErr(s3Error), r.URL, guessIsBrowserReq(r))
 			return
 		}
 	} else {
-		if s3Error := checkRequestAuthType(ctx, r, policy.ListenBucketNotificationAction, bucketName, ""); s3Error != ErrNone {
+		accessKey, _, s3Error = checkRequestAuthTypeToAccessKey(ctx, r, policy.ListenBucketNotificationAction, bucketName, "")
+		if s3Error != ErrNone {
 			writeErrorResponse(ctx, w, errorCodes.ToAPIErr(s3Error), r.URL, guessIsBrowserReq(r))
 			return
 		}
@@ -110,7 +114,8 @@ func (api objectAPIHandlers) ListenNotificationHandler(w http.ResponseWriter, r 
 	}
 
 	if bucketName != "" {
-		if _, err := objAPI.GetBucketInfo(ctx, bucketName); err != nil {
+		opts := BucketOptions{AccessKey: accessKey}
+		if _, err := objAPI.GetBucketInfo(ctx, bucketName, opts); err != nil {
 			writeErrorResponse(ctx, w, toAPIError(ctx, err), r.URL, guessIsBrowserReq(r))
 			return
 		}

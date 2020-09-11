@@ -573,7 +573,7 @@ func (a *azureObjects) MakeBucketWithLocation(ctx context.Context, bucket string
 }
 
 // GetBucketInfo - Get bucket metadata..
-func (a *azureObjects) GetBucketInfo(ctx context.Context, bucket string) (bi minio.BucketInfo, e error) {
+func (a *azureObjects) GetBucketInfo(ctx context.Context, bucket string, opts minio.BucketOptions) (bi minio.BucketInfo, e error) {
 	// Azure does not have an equivalent call, hence use
 	// ListContainers with prefix
 

@@ -45,6 +45,7 @@ type ObjectOptions struct {
 	UserDefined          map[string]string   // only set in case of POST/PUT operations
 	PartNumber           int                 // only useful in case of GetObject/HeadObject
 	CheckPrecondFn       CheckPreconditionFn // only set during GetObject/HeadObject/CopyObjectPart preconditional valuation
+	AccessKey            string
 }
 
 // BucketOptions represents bucket options for ObjectLayer bucket operations
@@ -78,7 +79,7 @@ type ObjectLayer interface {
 
 	// Bucket operations.
 	MakeBucketWithLocation(ctx context.Context, bucket string, opts BucketOptions) error
-	GetBucketInfo(ctx context.Context, bucket string) (bucketInfo BucketInfo, err error)
+	GetBucketInfo(ctx context.Context, bucket string, opts BucketOptions) (bucketInfo BucketInfo, err error)
 	ListBuckets(ctx context.Context, opts BucketOptions) (buckets []BucketInfo, err error)
 	DeleteBucket(ctx context.Context, bucket string, forceDelete bool, opts BucketOptions) error
 	ListObjects(ctx context.Context, bucket, prefix, marker, delimiter string, maxKeys int) (result ListObjectsInfo, err error)

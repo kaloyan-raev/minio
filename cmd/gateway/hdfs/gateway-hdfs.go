@@ -310,7 +310,7 @@ func (n *hdfsObjects) MakeBucketWithLocation(ctx context.Context, bucket string,
 	return hdfsToObjectErr(ctx, n.clnt.Mkdir(n.hdfsPathJoin(bucket), os.FileMode(0755)), bucket)
 }
 
-func (n *hdfsObjects) GetBucketInfo(ctx context.Context, bucket string) (bi minio.BucketInfo, err error) {
+func (n *hdfsObjects) GetBucketInfo(ctx context.Context, bucket string, opts minio.BucketOptions) (bi minio.BucketInfo, err error) {
 	fi, err := n.clnt.Stat(n.hdfsPathJoin(bucket))
 	if err != nil {
 		return bi, hdfsToObjectErr(ctx, err, bucket)

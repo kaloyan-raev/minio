@@ -1564,9 +1564,9 @@ func (z *erasureZones) CompleteMultipartUpload(ctx context.Context, bucket, obje
 }
 
 // GetBucketInfo - returns bucket info from one of the erasure coded zones.
-func (z *erasureZones) GetBucketInfo(ctx context.Context, bucket string) (bucketInfo BucketInfo, err error) {
+func (z *erasureZones) GetBucketInfo(ctx context.Context, bucket string, opts BucketOptions) (bucketInfo BucketInfo, err error) {
 	if z.SingleZone() {
-		bucketInfo, err = z.zones[0].GetBucketInfo(ctx, bucket)
+		bucketInfo, err = z.zones[0].GetBucketInfo(ctx, bucket, opts)
 		if err != nil {
 			return bucketInfo, err
 		}
@@ -1577,7 +1577,7 @@ func (z *erasureZones) GetBucketInfo(ctx context.Context, bucket string) (bucket
 		return bucketInfo, nil
 	}
 	for _, zone := range z.zones {
-		bucketInfo, err = zone.GetBucketInfo(ctx, bucket)
+		bucketInfo, err = zone.GetBucketInfo(ctx, bucket, opts)
 		if err != nil {
 			if isErrBucketNotFound(err) {
 				continue

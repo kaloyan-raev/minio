@@ -440,7 +440,7 @@ func (l *gcsGateway) MakeBucketWithLocation(ctx context.Context, bucket string, 
 }
 
 // GetBucketInfo - Get bucket metadata..
-func (l *gcsGateway) GetBucketInfo(ctx context.Context, bucket string) (minio.BucketInfo, error) {
+func (l *gcsGateway) GetBucketInfo(ctx context.Context, bucket string, opts minio.BucketOptions) (minio.BucketInfo, error) {
 	attrs, err := l.client.Bucket(bucket).Attrs(ctx)
 	if err != nil {
 		logger.LogIf(ctx, err)

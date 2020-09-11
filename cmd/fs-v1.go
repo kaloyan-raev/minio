@@ -468,7 +468,7 @@ func (fs *FSObjects) DeleteBucketPolicy(ctx context.Context, bucket string) erro
 }
 
 // GetBucketInfo - fetch bucket metadata info.
-func (fs *FSObjects) GetBucketInfo(ctx context.Context, bucket string) (bi BucketInfo, e error) {
+func (fs *FSObjects) GetBucketInfo(ctx context.Context, bucket string, opts BucketOptions) (bi BucketInfo, e error) {
 	atomic.AddInt64(&fs.activeIOCount, 1)
 	defer func() {
 		atomic.AddInt64(&fs.activeIOCount, -1)
@@ -655,7 +655,7 @@ func (fs *FSObjects) CopyObject(ctx context.Context, srcBucket, srcObject, dstBu
 		return fsMeta.ToObjectInfo(srcBucket, srcObject, fi), nil
 	}
 
-	if err := checkPutObjectArgs(ctx, dstBucket, dstObject, fs, srcInfo.PutObjReader.Size()); err != nil {
+	if err := checkPutObjectArgs(ctx, dstBucket, dstObject, fs, srcInfo.PutObjReader.Size(), srcOpts); err != nil {
 		return ObjectInfo{}, err
 	}
 
@@ -1099,7 +1099,7 @@ func (fs *FSObjects) PutObject(ctx context.Context, bucket string, object string
 		return objInfo, NotImplemented{}
 	}
 
-	if err := checkPutObjectArgs(ctx, bucket, object, fs, r.Size()); err != nil {
+	if err := checkPutObjectArgs(ctx, bucket, object, fs, r.Size(), opts); err != nil {
 		return ObjectInfo{}, err
 	}
 

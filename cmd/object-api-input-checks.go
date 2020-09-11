@@ -66,7 +66,9 @@ func checkListObjsArgs(ctx context.Context, bucket, prefix, marker string, obj O
 	// important here bucket does not exist error should
 	// happen before we return an error for invalid object name.
 	// FIXME: should be moved to handler layer.
-	if err := checkBucketExist(ctx, bucket, obj); err != nil {
+
+	// TODO: Kaloyan - add access key
+	if err := checkBucketExist(ctx, bucket, obj, BucketOptions{}); err != nil {
 		return err
 	}
 	// Validates object prefix validity after bucket exists.
@@ -153,7 +155,9 @@ func checkObjectArgs(ctx context.Context, bucket, object string, obj ObjectLayer
 	// important here bucket does not exist error should
 	// happen before we return an error for invalid object name.
 	// FIXME: should be moved to handler layer.
-	if err := checkBucketExist(ctx, bucket, obj); err != nil {
+
+	// TODO: Kaloyan - add access key
+	if err := checkBucketExist(ctx, bucket, obj, BucketOptions{}); err != nil {
 		return err
 	}
 
@@ -173,13 +177,13 @@ func checkObjectArgs(ctx context.Context, bucket, object string, obj ObjectLayer
 }
 
 // Checks for PutObject arguments validity, also validates if bucket exists.
-func checkPutObjectArgs(ctx context.Context, bucket, object string, obj ObjectLayer, size int64) error {
+func checkPutObjectArgs(ctx context.Context, bucket, object string, obj ObjectLayer, size int64, opts ObjectOptions) error {
 	// Verify if bucket exists before validating object name.
 	// This is done on purpose since the order of errors is
 	// important here bucket does not exist error should
 	// happen before we return an error for invalid object name.
 	// FIXME: should be moved to handler layer.
-	if err := checkBucketExist(ctx, bucket, obj); err != nil {
+	if err := checkBucketExist(ctx, bucket, obj, BucketOptions{AccessKey: opts.AccessKey}); err != nil {
 		return err
 	}
 
@@ -198,8 +202,8 @@ func checkPutObjectArgs(ctx context.Context, bucket, object string, obj ObjectLa
 }
 
 // Checks whether bucket exists and returns appropriate error if not.
-func checkBucketExist(ctx context.Context, bucket string, obj ObjectLayer) error {
-	_, err := obj.GetBucketInfo(ctx, bucket)
+func checkBucketExist(ctx context.Context, bucket string, obj ObjectLayer, opts BucketOptions) error {
+	_, err := obj.GetBucketInfo(ctx, bucket, opts)
 	if err != nil {
 		return err
 	}

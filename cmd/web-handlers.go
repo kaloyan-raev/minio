@@ -252,7 +252,7 @@ func (web *webAPIHandlers) DeleteBucket(r *http.Request, args *RemoveBucketArgs,
 
 	reply.UIVersion = browser.UIVersion
 
-	if isRemoteCallRequired(ctx, args.BucketName, objectAPI) {
+	if isRemoteCallRequired(ctx, args.BucketName, objectAPI, claims.AccessKey) {
 		sr, err := globalDNSConfig.Get(args.BucketName)
 		if err != nil {
 			if err == dns.ErrNoEntriesFound {
@@ -420,7 +420,8 @@ func (web *webAPIHandlers) ListObjects(r *http.Request, args *ListObjectsArgs, r
 
 	listObjects := objectAPI.ListObjects
 
-	if isRemoteCallRequired(ctx, args.BucketName, objectAPI) {
+	// TODO: Kaloyan - find how to obtain access key at this point
+	if isRemoteCallRequired(ctx, args.BucketName, objectAPI, "") {
 		sr, err := globalDNSConfig.Get(args.BucketName)
 		if err != nil {
 			if err == dns.ErrNoEntriesFound {
@@ -646,7 +647,7 @@ func (web *webAPIHandlers) RemoveObject(r *http.Request, args *RemoveObjectArgs,
 	}
 
 	reply.UIVersion = browser.UIVersion
-	if isRemoteCallRequired(ctx, args.BucketName, objectAPI) {
+	if isRemoteCallRequired(ctx, args.BucketName, objectAPI, claims.AccessKey) {
 		sr, err := globalDNSConfig.Get(args.BucketName)
 		if err != nil {
 			if err == dns.ErrNoEntriesFound {
@@ -1655,7 +1656,7 @@ func (web *webAPIHandlers) GetBucketPolicy(r *http.Request, args *GetBucketPolic
 	}
 
 	var policyInfo = &miniogopolicy.BucketAccessPolicy{Version: "2012-10-17"}
-	if isRemoteCallRequired(ctx, args.BucketName, objectAPI) {
+	if isRemoteCallRequired(ctx, args.BucketName, objectAPI, claims.AccessKey) {
 		sr, err := globalDNSConfig.Get(args.BucketName)
 		if err != nil {
 			if err == dns.ErrNoEntriesFound {
@@ -1752,7 +1753,7 @@ func (web *webAPIHandlers) ListAllBucketPolicies(r *http.Request, args *ListAllB
 	}
 
 	var policyInfo = new(miniogopolicy.BucketAccessPolicy)
-	if isRemoteCallRequired(ctx, args.BucketName, objectAPI) {
+	if isRemoteCallRequired(ctx, args.BucketName, objectAPI, claims.AccessKey) {
 		sr, err := globalDNSConfig.Get(args.BucketName)
 		if err != nil {
 			if err == dns.ErrNoEntriesFound {
@@ -1849,7 +1850,7 @@ func (web *webAPIHandlers) SetBucketPolicy(r *http.Request, args *SetBucketPolic
 		}
 	}
 
-	if isRemoteCallRequired(ctx, args.BucketName, objectAPI) {
+	if isRemoteCallRequired(ctx, args.BucketName, objectAPI, claims.AccessKey) {
 		sr, err := globalDNSConfig.Get(args.BucketName)
 		if err != nil {
 			if err == dns.ErrNoEntriesFound {

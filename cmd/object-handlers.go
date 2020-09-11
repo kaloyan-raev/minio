@@ -766,20 +766,21 @@ func getRemoteInstanceClientLongTimeout(r *http.Request, host string) (*miniogo.
 // This function is similar to isRemoteCallRequired but specifically for COPY object API
 // if destination and source are same we do not need to check for destnation bucket
 // to exist locally.
-func isRemoteCopyRequired(ctx context.Context, srcBucket, dstBucket string, objAPI ObjectLayer) bool {
+func isRemoteCopyRequired(ctx context.Context, srcBucket, dstBucket string, objAPI ObjectLayer, accessKey string) bool {
 	if srcBucket == dstBucket {
 		return false
 	}
-	return isRemoteCallRequired(ctx, dstBucket, objAPI)
+	return isRemoteCallRequired(ctx, dstBucket, objAPI, accessKey)
 }
 
 // Check if the bucket is on a remote site, this code only gets executed when federation is enabled.
-func isRemoteCallRequired(ctx context.Context, bucket string, objAPI ObjectLayer) bool {
+func isRemoteCallRequired(ctx context.Context, bucket string, objAPI ObjectLayer, accessKey string) bool {
 	if globalDNSConfig == nil {
 		return false
 	}
 	if globalBucketFederation {
-		_, err := objAPI.GetBucketInfo(ctx, bucket)
+		opts := BucketOptions{AccessKey: accessKey}
+		_, err := objAPI.GetBucketInfo(ctx, bucket, opts)
 		return err == toObjectErr(errVolumeNotFound, bucket)
 	}
 	return false
@@ -820,7 +821,8 @@ func (api objectAPIHandlers) CopyObjectHandler(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	if s3Error := checkRequestAuthType(ctx, r, policy.PutObjectAction, dstBucket, dstObject); s3Error != ErrNone {
+	accessKey, _, s3Error := checkRequestAuthTypeToAccessKey(ctx, r, policy.PutObjectAction, dstBucket, dstObject)
+	if s3Error != ErrNone {
 		writeErrorResponse(ctx, w, errorCodes.ToAPIErr(s3Error), r.URL, guessIsBrowserReq(r))
 		return
 	}
@@ -991,7 +993,7 @@ func (api objectAPIHandlers) CopyObjectHandler(w http.ResponseWriter, r *http.Re
 	var compressMetadata map[string]string
 	// No need to compress for remote etcd calls
 	// Pass the decompressed stream to such calls.
-	isCompressed := objectAPI.IsCompressionSupported() && isCompressible(r.Header, srcObject) && !isRemoteCopyRequired(ctx, srcBucket, dstBucket, objectAPI)
+	isCompressed := objectAPI.IsCompressionSupported() && isCompressible(r.Header, srcObject) && !isRemoteCopyRequired(ctx, srcBucket, dstBucket, objectAPI, accessKey)
 	if isCompressed {
 		compressMetadata = make(map[string]string, 2)
 		// Preserving the compression metadata.
@@ -1213,7 +1215,7 @@ func (api objectAPIHandlers) CopyObjectHandler(w http.ResponseWriter, r *http.Re
 
 	var objInfo ObjectInfo
 
-	if isRemoteCopyRequired(ctx, srcBucket, dstBucket, objectAPI) {
+	if isRemoteCopyRequired(ctx, srcBucket, dstBucket, objectAPI, accessKey) {
 		var dstRecords []dns.SrvRecord
 		dstRecords, err = globalDNSConfig.Get(dstBucket)
 		if err != nil {
@@ -1765,7 +1767,8 @@ func (api objectAPIHandlers) CopyObjectPartHandler(w http.ResponseWriter, r *htt
 		return
 	}
 
-	if s3Error := checkRequestAuthType(ctx, r, policy.PutObjectAction, dstBucket, dstObject); s3Error != ErrNone {
+	accessKey, _, s3Error := checkRequestAuthTypeToAccessKey(ctx, r, policy.PutObjectAction, dstBucket, dstObject)
+	if s3Error != ErrNone {
 		writeErrorResponse(ctx, w, errorCodes.ToAPIErr(s3Error), r.URL, guessIsBrowserReq(r))
 		return
 	}
@@ -1923,7 +1926,7 @@ func (api objectAPIHandlers) CopyObjectPartHandler(w http.ResponseWriter, r *htt
 		return
 	}
 
-	if isRemoteCopyRequired(ctx, srcBucket, dstBucket, objectAPI) {
+	if isRemoteCopyRequired(ctx, srcBucket, dstBucket, objectAPI, accessKey) {
 		var dstRecords []dns.SrvRecord
 		dstRecords, err = globalDNSConfig.Get(dstBucket)
 		if err != nil {
@@ -2778,12 +2781,14 @@ func (api objectAPIHandlers) PutObjectLegalHoldHandler(w http.ResponseWriter, r 
 	}
 
 	// Check permissions to perform this legal hold operation
-	if s3Err := checkRequestAuthType(ctx, r, policy.PutObjectLegalHoldAction, bucket, object); s3Err != ErrNone {
+	accessKey, _, s3Err := checkRequestAuthTypeToAccessKey(ctx, r, policy.PutObjectLegalHoldAction, bucket, object)
+	if s3Err != ErrNone {
 		writeErrorResponse(ctx, w, errorCodes.ToAPIErr(s3Err), r.URL, guessIsBrowserReq(r))
 		return
 	}
 
-	if _, err := objectAPI.GetBucketInfo(ctx, bucket); err != nil {
+	bucketOpts := BucketOptions{AccessKey: accessKey}
+	if _, err := objectAPI.GetBucketInfo(ctx, bucket, bucketOpts); err != nil {
 		writeErrorResponse(ctx, w, toAPIError(ctx, err), r.URL, guessIsBrowserReq(r))
 		return
 	}
@@ -2938,7 +2943,8 @@ func (api objectAPIHandlers) PutObjectRetentionHandler(w http.ResponseWriter, r 
 		return
 	}
 
-	if _, err := objectAPI.GetBucketInfo(ctx, bucket); err != nil {
+	bucketOpts := BucketOptions{AccessKey: cred.AccessKey}
+	if _, err := objectAPI.GetBucketInfo(ctx, bucket, bucketOpts); err != nil {
 		writeErrorResponse(ctx, w, toAPIError(ctx, err), r.URL, guessIsBrowserReq(r))
 		return
 	}
