@@ -1414,7 +1414,8 @@ func (api objectAPIHandlers) PutObjectHandler(w http.ResponseWriter, r *http.Req
 	reader = r.Body
 
 	// Check if put is allowed
-	if s3Err = isPutActionAllowed(rAuthType, bucket, object, r, iampolicy.PutObjectAction); s3Err != ErrNone {
+	accessKey, s3Err := isPutActionAllowedToAccessKey(rAuthType, bucket, object, r, iampolicy.PutObjectAction)
+	if s3Err != ErrNone {
 		writeErrorResponse(ctx, w, errorCodes.ToAPIErr(s3Err), r.URL, guessIsBrowserReq(r))
 		return
 	}
@@ -1490,6 +1491,7 @@ func (api objectAPIHandlers) PutObjectHandler(w http.ResponseWriter, r *http.Req
 	// get gateway encryption options
 	var opts ObjectOptions
 	opts, err = putOpts(ctx, r, bucket, object, metadata)
+	opts.AccessKey = accessKey
 	if err != nil {
 		writeErrorResponse(ctx, w, toAPIError(ctx, err), r.URL, guessIsBrowserReq(r))
 		return

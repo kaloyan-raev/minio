@@ -616,11 +616,19 @@ func isPutRetentionAllowed(bucketName, objectName string, retDays int, retDate t
 // call verifies bucket policies and IAM policies, supports multi user
 // checks etc.
 func isPutActionAllowed(atype authType, bucketName, objectName string, r *http.Request, action iampolicy.Action) (s3Err APIErrorCode) {
+	_, s3Err = isPutActionAllowedToAccessKey(atype, bucketName, objectName, r, action)
+	return s3Err
+}
+
+// isPutActionAllowed - check if PUT operation is allowed on the resource, this
+// call verifies bucket policies and IAM policies, supports multi user
+// checks etc.
+func isPutActionAllowedToAccessKey(atype authType, bucketName, objectName string, r *http.Request, action iampolicy.Action) (accessKey string, s3Err APIErrorCode) {
 	var cred auth.Credentials
 	var owner bool
 	switch atype {
 	case authTypeUnknown:
-		return ErrSignatureVersionNotSupported
+		return accessKey, ErrSignatureVersionNotSupported
 	case authTypeSignedV2, authTypePresignedV2:
 		cred, owner, s3Err = getReqAccessKeyV2(r)
 	case authTypeStreamingSigned, authTypePresigned, authTypeSigned:
@@ -628,12 +636,14 @@ func isPutActionAllowed(atype authType, bucketName, objectName string, r *http.R
 		cred, owner, s3Err = getReqAccessKeyV4(r, region, serviceS3)
 	}
 	if s3Err != ErrNone {
-		return s3Err
+		return accessKey, s3Err
 	}
+
+	accessKey = cred.AccessKey
 
 	claims, s3Err := checkClaimsFromToken(r, cred)
 	if s3Err != ErrNone {
-		return s3Err
+		return accessKey, s3Err
 	}
 
 	// Do not check for PutObjectRetentionAction permission,
@@ -642,10 +652,10 @@ func isPutActionAllowed(atype authType, bucketName, objectName string, r *http.R
 	if action == iampolicy.PutObjectRetentionAction &&
 		r.Header.Get(xhttp.AmzObjectLockMode) == "" &&
 		r.Header.Get(xhttp.AmzObjectLockRetainUntilDate) == "" {
-		return ErrNone
+		return accessKey, ErrNone
 	}
 
-	if cred.AccessKey == "" {
+	if accessKey == "" {
 		if globalPolicySys.IsAllowed(policy.Args{
 			AccountName:     cred.AccessKey,
 			Action:          policy.Action(action),
@@ -654,9 +664,9 @@ func isPutActionAllowed(atype authType, bucketName, objectName string, r *http.R
 			IsOwner:         false,
 			ObjectName:      objectName,
 		}) {
-			return ErrNone
+			return accessKey, ErrNone
 		}
-		return ErrAccessDenied
+		return accessKey, ErrAccessDenied
 	}
 
 	if globalIAMSys.IsAllowed(iampolicy.Args{
@@ -668,7 +678,7 @@ func isPutActionAllowed(atype authType, bucketName, objectName string, r *http.R
 		IsOwner:         owner,
 		Claims:          claims,
 	}) {
-		return ErrNone
+		return accessKey, ErrNone
 	}
-	return ErrAccessDenied
+	return accessKey, ErrAccessDenied
 }
