@@ -1457,7 +1457,7 @@ func (fs *FSObjects) ListObjectVersions(ctx context.Context, bucket, prefix, mar
 
 // ListObjects - list all objects at prefix upto maxKeys., optionally delimited by '/'. Maintains the list pool
 // state for future re-entrant list requests.
-func (fs *FSObjects) ListObjects(ctx context.Context, bucket, prefix, marker, delimiter string, maxKeys int) (loi ListObjectsInfo, e error) {
+func (fs *FSObjects) ListObjects(ctx context.Context, bucket, prefix, marker, delimiter string, maxKeys int, opts BucketOptions) (loi ListObjectsInfo, e error) {
 	atomic.AddInt64(&fs.activeIOCount, 1)
 	defer func() {
 		atomic.AddInt64(&fs.activeIOCount, -1)
@@ -1583,13 +1583,13 @@ func (fs *FSObjects) GetMetrics(ctx context.Context) (*Metrics, error) {
 }
 
 // ListObjectsV2 lists all blobs in bucket filtered by prefix
-func (fs *FSObjects) ListObjectsV2(ctx context.Context, bucket, prefix, continuationToken, delimiter string, maxKeys int, fetchOwner bool, startAfter string) (result ListObjectsV2Info, err error) {
+func (fs *FSObjects) ListObjectsV2(ctx context.Context, bucket, prefix, continuationToken, delimiter string, maxKeys int, fetchOwner bool, startAfter string, opts BucketOptions) (result ListObjectsV2Info, err error) {
 	marker := continuationToken
 	if marker == "" {
 		marker = startAfter
 	}
 
-	loi, err := fs.ListObjects(ctx, bucket, prefix, marker, delimiter, maxKeys)
+	loi, err := fs.ListObjects(ctx, bucket, prefix, marker, delimiter, maxKeys, opts)
 	if err != nil {
 		return result, err
 	}

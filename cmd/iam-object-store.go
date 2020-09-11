@@ -586,8 +586,9 @@ func listIAMConfigItems(ctx context.Context, objAPI ObjectLayer, pathPrefix stri
 
 		marker := ""
 		for {
+			// TODO: Kaloyan - check if we need access key here
 			lo, err := objAPI.ListObjects(ctx,
-				minioMetaBucket, pathPrefix, marker, SlashSeparator, maxObjectList)
+				minioMetaBucket, pathPrefix, marker, SlashSeparator, maxObjectList, BucketOptions{})
 			if err != nil {
 				select {
 				case ch <- itemOrErr{Err: err}:

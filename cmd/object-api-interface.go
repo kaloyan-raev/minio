@@ -82,8 +82,8 @@ type ObjectLayer interface {
 	GetBucketInfo(ctx context.Context, bucket string, opts BucketOptions) (bucketInfo BucketInfo, err error)
 	ListBuckets(ctx context.Context, opts BucketOptions) (buckets []BucketInfo, err error)
 	DeleteBucket(ctx context.Context, bucket string, forceDelete bool, opts BucketOptions) error
-	ListObjects(ctx context.Context, bucket, prefix, marker, delimiter string, maxKeys int) (result ListObjectsInfo, err error)
-	ListObjectsV2(ctx context.Context, bucket, prefix, continuationToken, delimiter string, maxKeys int, fetchOwner bool, startAfter string) (result ListObjectsV2Info, err error)
+	ListObjects(ctx context.Context, bucket, prefix, marker, delimiter string, maxKeys int, opts BucketOptions) (result ListObjectsInfo, err error)
+	ListObjectsV2(ctx context.Context, bucket, prefix, continuationToken, delimiter string, maxKeys int, fetchOwner bool, startAfter string, opts BucketOptions) (result ListObjectsV2Info, err error)
 	ListObjectVersions(ctx context.Context, bucket, prefix, marker, versionMarker, delimiter string, maxKeys int) (result ListObjectVersionsInfo, err error)
 	// Walk lists all objects including versions, delete markers.
 	Walk(ctx context.Context, bucket, prefix string, results chan<- ObjectInfo, opts ObjectOptions) error

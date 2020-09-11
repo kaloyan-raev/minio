@@ -27,6 +27,7 @@ import (
 
 	jsoniter "github.com/json-iterator/go"
 	"github.com/minio/minio/cmd/config"
+	"github.com/minio/minio/pkg/auth"
 	"github.com/minio/minio/pkg/madmin"
 )
 
@@ -42,7 +43,7 @@ const (
 	minioConfigFile = "config.json"
 )
 
-func listServerConfigHistory(ctx context.Context, objAPI ObjectLayer, withData bool, count int) (
+func listServerConfigHistory(ctx context.Context, objAPI ObjectLayer, withData bool, count int, cred auth.Credentials) (
 	[]madmin.ConfigHistoryEntry, error) {
 
 	var configHistory []madmin.ConfigHistoryEntry
@@ -50,7 +51,8 @@ func listServerConfigHistory(ctx context.Context, objAPI ObjectLayer, withData b
 	// List all kvs
 	marker := ""
 	for {
-		res, err := objAPI.ListObjects(ctx, minioMetaBucket, minioConfigHistoryPrefix, marker, "", maxObjectList)
+		opts := BucketOptions{AccessKey: cred.AccessKey}
+		res, err := objAPI.ListObjects(ctx, minioMetaBucket, minioConfigHistoryPrefix, marker, "", maxObjectList, opts)
 		if err != nil {
 			return nil, err
 		}

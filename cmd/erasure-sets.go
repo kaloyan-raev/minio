@@ -590,7 +590,7 @@ func (s *erasureSets) GetBucketInfo(ctx context.Context, bucket string, opts Buc
 }
 
 // ListObjectsV2 lists all objects in bucket filtered by prefix
-func (s *erasureSets) ListObjectsV2(ctx context.Context, bucket, prefix, continuationToken, delimiter string, maxKeys int, fetchOwner bool, startAfter string) (result ListObjectsV2Info, err error) {
+func (s *erasureSets) ListObjectsV2(ctx context.Context, bucket, prefix, continuationToken, delimiter string, maxKeys int, fetchOwner bool, startAfter string, opts BucketOptions) (result ListObjectsV2Info, err error) {
 	return result, NotImplemented{}
 }
 
@@ -1049,7 +1049,7 @@ func (s *erasureSets) ListObjectVersions(ctx context.Context, bucket, prefix, ma
 // ListObjects - implements listing of objects across disks, each disk is indepenently
 // walked and merged at this layer. Resulting value through the merge process sends
 // the data in lexically sorted order.
-func (s *erasureSets) ListObjects(ctx context.Context, bucket, prefix, marker, delimiter string, maxKeys int) (loi ListObjectsInfo, err error) {
+func (s *erasureSets) ListObjects(ctx context.Context, bucket, prefix, marker, delimiter string, maxKeys int, opts BucketOptions) (loi ListObjectsInfo, err error) {
 	// Shouldn't be called directly, caller Zones already has an implementation
 	return loi, NotImplemented{}
 }

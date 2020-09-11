@@ -238,8 +238,9 @@ func migrateConfigPrefixToEncrypted(objAPI ObjectLayer, activeCredOld auth.Crede
 
 	var marker string
 	for {
+		opts := BucketOptions{AccessKey: activeCredOld.AccessKey}
 		res, err := objAPI.ListObjects(GlobalContext, minioMetaBucket,
-			minioConfigPrefix, marker, "", maxObjectList)
+			minioConfigPrefix, marker, "", maxObjectList, opts)
 		if err != nil {
 			return err
 		}

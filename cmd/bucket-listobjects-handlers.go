@@ -158,7 +158,8 @@ func (api objectAPIHandlers) ListObjectsV2MHandler(w http.ResponseWriter, r *htt
 		return
 	}
 
-	if s3Error := checkRequestAuthType(ctx, r, policy.ListBucketAction, bucket, ""); s3Error != ErrNone {
+	accessKey, _, s3Error := checkRequestAuthTypeToAccessKey(ctx, r, policy.ListBucketAction, bucket, "")
+	if s3Error != ErrNone {
 		writeErrorResponse(ctx, w, errorCodes.ToAPIErr(s3Error), r.URL, guessIsBrowserReq(r))
 		return
 	}
@@ -191,7 +192,8 @@ func (api objectAPIHandlers) ListObjectsV2MHandler(w http.ResponseWriter, r *htt
 	// Inititate a list objects operation based on the input params.
 	// On success would return back ListObjectsInfo object to be
 	// marshaled into S3 compatible XML header.
-	listObjectsV2Info, err := listObjectsV2(ctx, bucket, prefix, token, delimiter, maxKeys, fetchOwner, startAfter)
+	opts := BucketOptions{AccessKey: accessKey}
+	listObjectsV2Info, err := listObjectsV2(ctx, bucket, prefix, token, delimiter, maxKeys, fetchOwner, startAfter, opts)
 	if err != nil {
 		writeErrorResponse(ctx, w, toAPIError(ctx, err), r.URL, guessIsBrowserReq(r))
 		return
@@ -235,7 +237,8 @@ func (api objectAPIHandlers) ListObjectsV2Handler(w http.ResponseWriter, r *http
 		return
 	}
 
-	if s3Error := checkRequestAuthType(ctx, r, policy.ListBucketAction, bucket, ""); s3Error != ErrNone {
+	accessKey, _, s3Error := checkRequestAuthTypeToAccessKey(ctx, r, policy.ListBucketAction, bucket, "")
+	if s3Error != ErrNone {
 		writeErrorResponse(ctx, w, errorCodes.ToAPIErr(s3Error), r.URL, guessIsBrowserReq(r))
 		return
 	}
@@ -268,7 +271,8 @@ func (api objectAPIHandlers) ListObjectsV2Handler(w http.ResponseWriter, r *http
 	// Inititate a list objects operation based on the input params.
 	// On success would return back ListObjectsInfo object to be
 	// marshaled into S3 compatible XML header.
-	listObjectsV2Info, err := listObjectsV2(ctx, bucket, prefix, token, delimiter, maxKeys, fetchOwner, startAfter)
+	opts := BucketOptions{AccessKey: accessKey}
+	listObjectsV2Info, err := listObjectsV2(ctx, bucket, prefix, token, delimiter, maxKeys, fetchOwner, startAfter, opts)
 	if err != nil {
 		writeErrorResponse(ctx, w, toAPIError(ctx, err), r.URL, guessIsBrowserReq(r))
 		return
@@ -364,7 +368,8 @@ func (api objectAPIHandlers) ListObjectsV1Handler(w http.ResponseWriter, r *http
 		return
 	}
 
-	if s3Error := checkRequestAuthType(ctx, r, policy.ListBucketAction, bucket, ""); s3Error != ErrNone {
+	accessKey, _, s3Error := checkRequestAuthTypeToAccessKey(ctx, r, policy.ListBucketAction, bucket, "")
+	if s3Error != ErrNone {
 		writeErrorResponse(ctx, w, errorCodes.ToAPIErr(s3Error), r.URL, guessIsBrowserReq(r))
 		return
 	}
@@ -391,7 +396,8 @@ func (api objectAPIHandlers) ListObjectsV1Handler(w http.ResponseWriter, r *http
 	// Inititate a list objects operation based on the input params.
 	// On success would return back ListObjectsInfo object to be
 	// marshaled into S3 compatible XML header.
-	listObjectsInfo, err := listObjects(ctx, bucket, prefix, marker, delimiter, maxKeys)
+	opts := BucketOptions{AccessKey: accessKey}
+	listObjectsInfo, err := listObjects(ctx, bucket, prefix, marker, delimiter, maxKeys, opts)
 	if err != nil {
 		writeErrorResponse(ctx, w, toAPIError(ctx, err), r.URL, guessIsBrowserReq(r))
 		return

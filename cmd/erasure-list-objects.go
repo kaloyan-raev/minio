@@ -28,12 +28,12 @@ func (er erasureObjects) ListObjectVersions(ctx context.Context, bucket, prefix,
 }
 
 // ListObjectsV2 - This is not implemented/needed anymore, look for erasure-zones.ListObjectsV2()
-func (er erasureObjects) ListObjectsV2(ctx context.Context, bucket, prefix, continuationToken, delimiter string, maxKeys int, fetchOwner bool, startAfter string) (loi ListObjectsV2Info, e error) {
+func (er erasureObjects) ListObjectsV2(ctx context.Context, bucket, prefix, continuationToken, delimiter string, maxKeys int, fetchOwner bool, startAfter string, opts BucketOptions) (loi ListObjectsV2Info, e error) {
 	return loi, NotImplemented{}
 }
 
 // ListObjects - This is not implemented/needed anymore, look for erasure-zones.ListObjects()
-func (er erasureObjects) ListObjects(ctx context.Context, bucket, prefix, marker, delimiter string, maxKeys int) (loi ListObjectsInfo, e error) {
+func (er erasureObjects) ListObjects(ctx context.Context, bucket, prefix, marker, delimiter string, maxKeys int, opts BucketOptions) (loi ListObjectsInfo, e error) {
 	return loi, NotImplemented{}
 }
 

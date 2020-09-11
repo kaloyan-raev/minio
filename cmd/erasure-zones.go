@@ -667,13 +667,13 @@ func (z *erasureZones) CopyObject(ctx context.Context, srcBucket, srcObject, dst
 	return z.zones[zoneIdx].PutObject(ctx, dstBucket, dstObject, srcInfo.PutObjReader, putOpts)
 }
 
-func (z *erasureZones) ListObjectsV2(ctx context.Context, bucket, prefix, continuationToken, delimiter string, maxKeys int, fetchOwner bool, startAfter string) (ListObjectsV2Info, error) {
+func (z *erasureZones) ListObjectsV2(ctx context.Context, bucket, prefix, continuationToken, delimiter string, maxKeys int, fetchOwner bool, startAfter string, opts BucketOptions) (ListObjectsV2Info, error) {
 	marker := continuationToken
 	if marker == "" {
 		marker = startAfter
 	}
 
-	loi, err := z.ListObjects(ctx, bucket, prefix, marker, delimiter, maxKeys)
+	loi, err := z.ListObjects(ctx, bucket, prefix, marker, delimiter, maxKeys, opts)
 	if err != nil {
 		return ListObjectsV2Info{}, err
 	}
@@ -1318,7 +1318,7 @@ func (z *erasureZones) ListObjectVersions(ctx context.Context, bucket, prefix, m
 	return z.listObjectVersions(ctx, bucket, prefix, marker, versionMarker, delimiter, maxKeys)
 }
 
-func (z *erasureZones) ListObjects(ctx context.Context, bucket, prefix, marker, delimiter string, maxKeys int) (ListObjectsInfo, error) {
+func (z *erasureZones) ListObjects(ctx context.Context, bucket, prefix, marker, delimiter string, maxKeys int, opts BucketOptions) (ListObjectsInfo, error) {
 	return z.listObjects(ctx, bucket, prefix, marker, delimiter, maxKeys)
 }
 

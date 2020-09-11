@@ -205,7 +205,7 @@ func (a adminAPIHandlers) ClearConfigHistoryKVHandler(w http.ResponseWriter, r *
 
 	defer logger.AuditLog(w, r, "ClearConfigHistoryKV", mustGetClaimsFromToken(r))
 
-	_, objectAPI := validateAdminReqConfigKV(ctx, w, r)
+	cred, objectAPI := validateAdminReqConfigKV(ctx, w, r)
 	if objectAPI == nil {
 		return
 	}
@@ -217,7 +217,7 @@ func (a adminAPIHandlers) ClearConfigHistoryKVHandler(w http.ResponseWriter, r *
 		return
 	}
 	if restoreID == "all" {
-		chEntries, err := listServerConfigHistory(ctx, objectAPI, false, -1)
+		chEntries, err := listServerConfigHistory(ctx, objectAPI, false, -1, cred)
 		if err != nil {
 			writeErrorResponseJSON(ctx, w, toAdminAPIErr(ctx, err), r.URL)
 			return
@@ -302,7 +302,7 @@ func (a adminAPIHandlers) ListConfigHistoryKVHandler(w http.ResponseWriter, r *h
 		return
 	}
 
-	chEntries, err := listServerConfigHistory(ctx, objectAPI, true, count)
+	chEntries, err := listServerConfigHistory(ctx, objectAPI, true, count, cred)
 	if err != nil {
 		writeErrorResponseJSON(ctx, w, toAdminAPIErr(ctx, err), r.URL)
 		return

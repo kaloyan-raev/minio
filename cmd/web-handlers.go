@@ -555,7 +555,8 @@ func (web *webAPIHandlers) ListObjects(r *http.Request, args *ListObjectsArgs, r
 	// Fetch all the objects
 	for {
 		// Limit browser to 1000 batches to be more responsive, scrolling friendly.
-		lo, err := listObjects(ctx, args.BucketName, args.Prefix, nextMarker, SlashSeparator, 1000)
+		opts := BucketOptions{AccessKey: claims.AccessKey}
+		lo, err := listObjects(ctx, args.BucketName, args.Prefix, nextMarker, SlashSeparator, 1000, opts)
 		if err != nil {
 			return &json2.Error{Message: err.Error()}
 		}
